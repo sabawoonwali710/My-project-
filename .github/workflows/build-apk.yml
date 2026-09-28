@@ -12,10 +12,16 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Rebuild embedded book
+      - name: Prepare embedded book
+        shell: bash
         run: |
           mkdir -p app/src/main/assets
-          cat book_parts/*.b64 | base64 -d > app/src/main/assets/book.pdf
+          BOOK="$(find . -maxdepth 1 -type f -iname '*.pdf' -print -quit)"
+          if [ -z "$BOOK" ]; then
+            echo "No PDF found in repository root."
+            exit 1
+          fi
+          cp "$BOOK" app/src/main/assets/book.pdf
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
